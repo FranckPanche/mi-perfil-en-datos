@@ -233,7 +233,7 @@ footer{max-width:1140px;margin:0 auto 2rem;padding:0 1.25rem;font-size:.76rem;co
       </div>
       <div class="millas" aria-live="polite"><b id="k-millas">0</b><span class="log">millas<br>recorridas</span></div>
     </div>
-    <div id="k-empty" class="note hide">Elige tu código arriba, o registra tus respuestas en el módulo 1, para abrir tu carta.</div>
+    <div id="k-empty" class="note hide">Elige tu código en el selector Estudiante, arriba, o registra tus respuestas en el módulo Responder para abrir tu carta. Para explorar el aplicativo con datos de práctica, entra al panel Docente, pulsa Crear grupo DEMO y elige luego un perfil DEMO en el selector.</div>
     <div class="mapbox" id="k-map"></div>
     <div id="k-station" class="station"></div>
     <div class="row noprint" style="margin-top:1rem"><button class="ghost" id="k-print">Imprimir la carta</button><span class="small muted">Sin un código elegido se imprime la carta en blanco, para llevar el recorrido en papel.</span></div>
@@ -811,7 +811,9 @@ function go(v){VIEW=v;document.querySelectorAll('.view').forEach(s=>s.classList.
   document.querySelectorAll('nav.steps button').forEach(b=>{if(b.dataset.v===v)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});
   RENDER[v]();window.scrollTo(0,0);}
 document.querySelectorAll('nav.steps button').forEach(b=>b.onclick=()=>go(b.dataset.v));
-function fillActive(){const sel=$('#active');sel.innerHTML='<option value="">Nuevo registro</option>'+DB.students.filter(s=>s.curso!=='DEMO').sort((a,b)=>a.code.localeCompare(b.code,'es',{numeric:true})).map(s=>`<option ${s.code===ACTIVE?'selected':''}>${s.code}</option>`).join('');}
+function fillActive(){const sel=$('#active'),by=(a,b)=>a.code.localeCompare(b.code,'es',{numeric:true}),opt=s=>`<option ${s.code===ACTIVE?'selected':''}>${s.code}</option>`;
+  const real=DB.students.filter(s=>s.curso!=='DEMO').sort(by),demo=DB.students.filter(s=>s.curso==='DEMO').sort(by);
+  sel.innerHTML='<option value="">Nuevo registro</option>'+(real.length?`<optgroup label="Estudiantes">${real.map(opt).join('')}</optgroup>`:'')+(demo.length?`<optgroup label="Práctica (grupo DEMO)">${demo.map(opt).join('')}</optgroup>`:'');}
 $('#active').onchange=e=>{ACTIVE=e.target.value||null;PORTSEL=null;RENDER[VIEW]();};
 
 /* ---------- 1 responder ---------- */
@@ -1182,8 +1184,8 @@ $('#d-demo').onclick=async()=>{const n=Math.max(5,Math.min(100,+$('#d-demo-n').v
   const biasByProf={'Administración deportiva':['S','E','R'],'Ingeniería y diseño multimedial':['A','I','C'],'Electricidad y electrónica':['R','I','C']};
   for(let k=1;k<=n;k++){const p=PROFS[k%3];const pool=biasByProf[p];const b=Math.random()<.55?pool[Math.floor(Math.random()*3)]:TYPES[Math.floor(Math.random()*6)];
     const st={code:'DEMO-'+String(k).padStart(2,'0'),curso:'DEMO',sub:'DEMO-'+'ABC'[k%3===0?0:(k%3===1?1:2)],num:k,prof:p,resp:randomResp(b),sim:true,t:new Date().toISOString()};demoLog(st);DB.students.push(st);}
-  await Store.replaceAll();toast(`Grupo DEMO con ${n} perfiles creado. Aparece en Nuestro curso.`);renderDocente();};
-$('#d-demo-del').onclick=async()=>{DB.students=DB.students.filter(s=>s.curso!=='DEMO');await Store.replaceAll();toast('Grupo DEMO borrado.');renderDocente();};
+  await Store.replaceAll();fillActive();toast(`Grupo DEMO con ${n} perfiles creado. Elige un perfil DEMO en el selector Estudiante para recorrer todos los módulos.`);renderDocente();};
+$('#d-demo-del').onclick=async()=>{DB.students=DB.students.filter(s=>s.curso!=='DEMO');await Store.replaceAll();if(ACTIVE&&ACTIVE.startsWith('DEMO-'))ACTIVE=null;fillActive();toast('Grupo DEMO borrado.');renderDocente();};
 $('#d-reset').onclick=async()=>{if(!confirm('Se borrarán todos los registros de estudiantes. Descarga antes una copia JSON. ¿Continuar?'))return;DB.students=[];ACTIVE=null;await Store.replaceAll();fillActive();renderDocente();};
 
 /* ---------- inicio ---------- */
