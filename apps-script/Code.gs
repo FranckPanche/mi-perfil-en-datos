@@ -19,7 +19,7 @@
  * “Mi perfil en datos - exportaciones”.
  */
 
-const PIN_INICIAL = 'cambia-este-pin';   // escribe aquí el PIN del panel docente antes de ejecutar configurar
+const PIN_INICIAL = 'cambia-este-pin';   // escribe aquí el PIN ENTRE COMILLAS, por ejemplo '2468'
 const HEAD_ = ['codigo', 'curso', 'profundizacion', 'R', 'I', 'A', 'S', 'E', 'C', 'actualizado', 'registro_json'];
 const CARPETA_ = 'Mi perfil en datos - exportaciones';
 
@@ -39,11 +39,18 @@ function configurar() {
   if (PIN_INICIAL === 'cambia-este-pin' || String(PIN_INICIAL).length < 4) {
     throw new Error('Escribe un PIN de al menos 4 caracteres en PIN_INICIAL y vuelve a ejecutar configurar.');
   }
-  PropertiesService.getScriptProperties().setProperty('PIN_DOCENTE', String(PIN_INICIAL));
+  PropertiesService.getScriptProperties().setProperty('PIN_DOCENTE', String(PIN_INICIAL).trim());
   sheet_('Estudiantes', HEAD_);
   sheet_('Ocupaciones');
   carpeta_();
   Logger.log('Listo. Hoja: ' + SpreadsheetApp.getActiveSpreadsheet().getUrl());
+}
+
+// Diagnóstico: ejecútala desde el editor y mira el registro de ejecución.
+function verificarPIN() {
+  const p = PropertiesService.getScriptProperties().getProperty('PIN_DOCENTE');
+  Logger.log(p ? 'PIN guardado con ' + String(p).length + ' caracteres; termina en ' + String(p).slice(-1) + '.'
+               : 'No hay PIN guardado. Se usa PIN_INICIAL: ' + (pinGuardado_() ? 'sí, con ' + pinGuardado_().length + ' caracteres.' : 'no (sigue el valor de ejemplo).'));
 }
 
 /* ---------- utilidades ---------- */
@@ -62,9 +69,18 @@ function carpeta_() {
   return it.hasNext() ? it.next() : DriveApp.createFolder(CARPETA_);
 }
 
-function pinOk_(pin) {
+// El PIN vale si coincide con el guardado por configurar o, si no se ejecutó, con PIN_INICIAL.
+function pinGuardado_() {
   const p = PropertiesService.getScriptProperties().getProperty('PIN_DOCENTE');
-  return !!p && String(pin) === p;
+  if (p) return String(p).trim();
+  const ini = String(PIN_INICIAL).trim();
+  return ini && ini !== 'cambia-este-pin' ? ini : '';
+}
+
+function pinOk_(pin) {
+  const p = pinGuardado_();
+  if (!p) throw new Error('No hay PIN configurado: escribe el PIN en PIN_INICIAL y ejecuta configurar.');
+  return String(pin == null ? '' : pin).trim() === p;
 }
 
 function exigirPin_(pin) {
