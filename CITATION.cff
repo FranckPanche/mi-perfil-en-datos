@@ -1,0 +1,14 @@
+cff-version: 1.2.0
+message: "Si usas este aplicativo, cítalo así."
+title: "Mi perfil en datos"
+type: software
+authors:
+  - family-names: "Panche Carreño"
+    given-names: "Franck Sebastián"
+version: "1.0.0"
+date-released: "2026-11-18"
+license: MIT
+repository-code: "https://github.com/FranckPanche/mi-perfil-en-datos"
+url: "https://franckpanche.github.io/mi-perfil-en-datos/"
+abstract: "Aplicativo web para enseñar pensamiento aleatorio en grado undécimo a partir de los propios datos vocacionales del estudiante (perfil RIASEC), con verificación del cálculo manual, gamificación cooperativa y analítica del aprendizaje para el docente."
+keywords: [pensamiento aleatorio, educación estadística, orientación vocacional, RIASEC, gamificación, analítica del aprendizaje]
