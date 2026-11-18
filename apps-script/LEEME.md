@@ -7,13 +7,22 @@
 4. Si trabajas en otro computador, usa **Unir copia JSON de otro equipo** para juntar los datos.
 
 ## Versión en línea (Google Apps Script)
-1. Crea una hoja de cálculo en Google Drive.
-2. Extensiones > Apps Script.
-3. Pega `Code.gs` y crea un archivo HTML llamado `Index` con el contenido de `Index.html`.
-4. Implementar > Nueva implementación > Aplicación web. Ejecutar como: yo.
-5. Comparte el enlace solo con quien corresponda. Los estudiantes que quieran pueden consultar su carta desde el celular; ninguna actividad lo exige.
+Usa los tres archivos de la carpeta `apps-script`: `Code.gs`, `Index.html` y `Fuente.html`.
 
-Es el mismo archivo HTML: detecta solo si está dentro de Apps Script y en ese caso guarda en la hoja.
+1. Con la cuenta del colegio (o la tuya), crea una hoja de cálculo nueva en Google Drive y llámala “Mi perfil en datos”.
+2. En la hoja: Extensiones > Apps Script. Se abre el editor con un archivo `Código.gs`.
+3. Borra lo que trae `Código.gs` y pega todo el contenido de `Code.gs`.
+4. En la línea `const PIN_INICIAL = 'cambia-este-pin';` escribe tu PIN entre las comillas (mínimo 4 caracteres). Guarda con Ctrl+S.
+5. Junto a “Archivos”, pulsa + > HTML y nómbralo exactamente `Index` (sin .html). Borra lo que trae y pega el contenido de `apps-script/Index.html`.
+6. Repite con otro archivo HTML llamado exactamente `Fuente` y pega el contenido de `apps-script/Fuente.html`.
+7. En la barra superior elige la función `configurar` y pulsa Ejecutar. Google pide permisos: Revisar permisos > tu cuenta > si aparece “Google no ha verificado esta app”, Configuración avanzada > Ir a … (no seguro) > Permitir. Es tu propio script; los permisos son para la hoja y para la carpeta de exportaciones en Drive.
+8. Implementar > Nueva implementación > tipo Aplicación web. Ejecutar como: **Yo**. Quién tiene acceso: **cualquier usuario del dominio del colegio**, si el colegio tiene Google Workspace; si no, **Cualquier persona**. Pulsa Implementar y copia la URL.
+9. Abre la URL, entra al panel Docente con tu PIN y crea un grupo DEMO para comprobar que la hoja se llena.
+
+Qué queda protegido: los estudiantes guardan su propio registro sin PIN; borrar, reemplazar datos, cambiar ocupaciones y descargar exige el PIN, y el servidor lo verifica. Las descargas (CSV y copias JSON) se guardan en la carpeta de Drive “Mi perfil en datos - exportaciones” y el aplicativo muestra el enlace.
+
+Para cambiar el PIN: edita `PIN_INICIAL`, guarda y vuelve a ejecutar `configurar`.
+Cada vez que cambies el código: Implementar > Gestionar implementaciones > editar (lápiz) > Versión: Nueva versión > Implementar. La URL no cambia.
 
 ## Diseño
 Tipografía Montserrat (licencia SIL Open Font License 1.1), incrustada en el archivo para que funcione sin conexión. Respeta las preferencias del sistema de reducir movimiento, reducir transparencia y aumentar contraste.

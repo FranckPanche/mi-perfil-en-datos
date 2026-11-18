@@ -456,6 +456,13 @@ footer{max-width:1140px;margin:0 auto 2rem;padding:0 1.25rem;font-size:.76rem;co
 
 <!-- 8 DOCENTE -->
 <section class="view" id="v-docente">
+<div class="sheet hide" id="d-gate">
+  <h2>Panel docente</h2>
+  <p class="muted">En la versión en línea, el panel docente pide el PIN que se configuró en el proyecto de Apps Script.</p>
+  <div class="row"><div><label for="d-pin">PIN</label><input id="d-pin" type="password" inputmode="numeric" autocomplete="off" style="width:9rem"></div><button id="d-pin-ok">Entrar</button></div>
+  <p id="d-pin-fb" class="small" aria-live="polite"></p>
+</div>
+<div id="d-body">
   <div class="sheet">
     <h2>Panel docente</h2>
     <p class="muted" id="d-mode"></p>
@@ -495,6 +502,7 @@ footer{max-width:1140px;margin:0 auto 2rem;padding:0 1.25rem;font-size:.76rem;co
     <div class="tbl-wrap"><table id="d-occ"></table></div>
     <div class="row" style="margin-top:.6rem"><button id="d-occ-add" class="ghost">Añadir ocupación</button><button id="d-occ-save">Guardar ocupaciones</button><button id="d-occ-reset" class="ghost">Restaurar lista inicial</button></div>
   </div>
+</div>
 </section>
 </main>
 
@@ -540,12 +548,13 @@ const Store={
   },
   persistLocal(){try{localStorage.setItem(LS_KEY,JSON.stringify({students:DB.students,occ:DB.occ}));}catch(e){toast('No se pudieron guardar los datos en este navegador.');}},
   async saveStudent(s){if(IS_GAS){await gas('api_saveStudent',JSON.stringify(s));}else this.persistLocal();},
-  async delStudent(code){if(IS_GAS){await gas('api_deleteStudent',code);}else this.persistLocal();},
-  async saveOcc(){if(IS_GAS){await gas('api_saveOcc',JSON.stringify(DB.occ));}else this.persistLocal();},
-  async replaceAll(){if(IS_GAS){await gas('api_replaceAll',JSON.stringify({students:DB.students,occ:DB.occ}));}else this.persistLocal();}
+  async delStudent(code){if(IS_GAS){await gas('api_deleteStudent',code,DOCPIN||'');}else this.persistLocal();},
+  async saveOcc(){if(IS_GAS){await gas('api_saveOcc',JSON.stringify(DB.occ),DOCPIN||'');}else this.persistLocal();},
+  async replaceAll(){if(IS_GAS){await gas('api_replaceAll',JSON.stringify({students:DB.students,occ:DB.occ}),DOCPIN||'');}else this.persistLocal();}
 };
 let DB={students:[],occ:null};
 let ACTIVE=null;
+let DOCPIN=null; // solo en Apps Script: PIN del panel docente, verificado en el servidor
 
 /* ---------- utilidades ---------- */
 const $=s=>document.querySelector(s);
@@ -568,7 +577,11 @@ function anonLabels(list){ // etiquetas estables por curso
   const byC={};return list.map(s=>{byC[s.curso]=(byC[s.curso]||0)+1;return s.curso+'-P'+String(byC[s.curso]).padStart(2,'0');});
 }
 function shuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
-function download(name,text,type){const b=new Blob([text],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();a.remove();}
+function download(name,text,type){
+  if(IS_GAS){toast('Guardando el archivo en Drive…');gas('api_export',name,text,type||'text/plain',DOCPIN||'').then(url=>showLink(url,name)).catch(e=>toast('No se pudo guardar en Drive: '+(e.message||e)));return;}
+  const b=new Blob([text],{type});const a=document.createElement('a');a.href=URL.createObjectURL(b);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove();},500);}
+function showLink(url,name){let n=$('#dl-link');if(!n){n=document.createElement('div');n.id='dl-link';n.className='note';n.style.cssText='position:fixed;right:1rem;bottom:1rem;z-index:30;max-width:360px;box-shadow:var(--shadow)';document.body.appendChild(n);}
+  n.innerHTML=`Archivo guardado en Drive: <a href="${url}" target="_blank" rel="noopener">${esc(name)}</a> <button class="ghost" style="margin-left:.4rem;padding:.2rem .6rem" onclick="this.parentElement.remove()">Cerrar</button>`;}
 function current(){return DB.students.find(s=>s.code===ACTIVE);}
 function withData(){return DB.students.filter(s=>s.resp&&s.resp.length===30);}
 
@@ -1047,7 +1060,10 @@ $('#k-print').onclick=()=>{document.body.classList.add('pc');window.print();};
 window.addEventListener('afterprint',()=>document.body.classList.remove('pc'));
 
 /* ---------- 8 docente ---------- */
-function renderDocente(){$('#d-mode').textContent=IS_GAS?'Versión en línea: los datos se guardan en la hoja de cálculo vinculada.':'Versión sin conexión: los datos se guardan solo en este navegador y en este computador. Descarga una copia JSON al final de cada sesión.';
+$('#d-pin-ok').onclick=async()=>{const pin=$('#d-pin').value.trim();if(!pin)return;$('#d-pin-fb').textContent='Verificando…';
+  try{const ok=await gas('api_checkPin',pin);if(ok){DOCPIN=pin;$('#d-pin').value='';$('#d-pin-fb').textContent='';renderDocente();}else $('#d-pin-fb').innerHTML='<span class="bad">PIN incorrecto.</span>';}catch(e){$('#d-pin-fb').textContent='No se pudo verificar: '+(e.message||e);}};
+$('#d-pin').onkeydown=e=>{if(e.key==='Enter')$('#d-pin-ok').click();};
+function renderDocente(){if(IS_GAS&&!DOCPIN){$('#d-gate').classList.remove('hide');$('#d-body').classList.add('hide');return;}$('#d-gate').classList.add('hide');$('#d-body').classList.remove('hide');$('#d-mode').textContent=IS_GAS?'Versión en línea: los datos se guardan en la hoja de cálculo vinculada.':'Versión sin conexión: los datos se guardan solo en este navegador y en este computador. Descarga una copia JSON al final de cada sesión.';
   const L=[...DB.students].sort((a,b)=>a.code.localeCompare(b.code,'es',{numeric:true}));
   $('#d-students').innerHTML=`<tr><th class="l">Código</th><th>Curso</th><th class="l">Profundización</th><th>Respuestas</th><th>Simulado</th><th>Puntajes correctos al primer intento</th><th>Errores</th><th>Tablero</th><th></th></tr>`+
    (L.length?L.map(s=>`<tr><td class="l">${s.code}</td><td>${s.curso}</td><td class="l small">${s.prof||'–'}</td><td>${s.resp?'Sí':'No'}</td><td>${s.sim?'Sí':''}</td><td>${s.check?(s.check.firstScoresOK?'<span class="ok">Sí</span>':'<span class="bad">No</span>'):'–'}</td><td class="small">${(s.check?.errs||[]).join(', ')}</td><td>${s.board?'Sí':''}</td><td><button class="ghost" data-del="${s.code}" aria-label="Borrar ${s.code}">Borrar</button></td></tr>`).join(''):`<tr><td colspan="9">Todavía no hay registros.</td></tr>`);

@@ -19,7 +19,7 @@ El estudiante calcula a mano todo lo que forma parte del contenido de aprendizaj
 
 - **Demostración:** abre el enlace y crea un grupo DEMO desde el panel docente. Los datos se guardan solo en el navegador de quien lo usa.
 - **Aula sin conexión:** descarga `index.html` y ábrelo con doble clic en el computador del docente.
-- **Aula con datos centralizados:** monta `apps-script/Code.gs` y `apps-script/Index.html` en Google Apps Script con la cuenta institucional del colegio. Los datos quedan en una hoja de cálculo de la Institución.
+- **Aula con datos centralizados:** monta `apps-script/Code.gs`, `apps-script/Index.html` y `apps-script/Fuente.html` en Google Apps Script con la cuenta institucional del colegio, siguiendo `apps-script/LEEME.md`. Los datos quedan en una hoja de cálculo de la Institución y el panel docente se protege con un PIN que verifica el servidor.
 
 **No subas datos reales de estudiantes a este repositorio.** El tratamiento de datos de menores se rige por la Ley 1581 de 2012.
 
