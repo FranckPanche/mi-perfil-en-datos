@@ -25,13 +25,13 @@ El estudiante calcula a mano todo lo que forma parte del contenido de aprendizaj
 
 ## Créditos
 
-- Cuestionario adaptado del O*NET Interest Profiler Short Form (National Center for O*NET Development, U.S. Department of Labor), usado bajo la licencia O*NET Career Exploration Tools.
+- Cuestionario de 30 ítems redactado por el autor a partir de las definiciones de los seis tipos de Holland y de las familias de actividades del O*NET Interest Profiler (National Center for O*NET Development, U.S. Department of Labor). Los perfiles de ocupaciones se verifican con O*NET OnLine.
 - Modelo de intereses de J. L. Holland (RIASEC).
 - Tipografía Montserrat, de The Montserrat Project Authors, bajo la SIL Open Font License 1.1.
 
 ## Cómo citar
 
-Panche Carreño, F. S. (2026). *Mi perfil en datos* (versión 1.0.0) [aplicación web]. GitHub. https://github.com/FranckPanche/mi-perfil-en-datos
+Panche Carreño, F. S. (2026). *Mi perfil en datos* (versión 1.1.0) [aplicación web]. GitHub. https://github.com/FranckPanche/mi-perfil-en-datos
 
 ## Autor
 

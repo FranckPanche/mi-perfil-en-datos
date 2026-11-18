@@ -509,12 +509,12 @@ const TYPES=['R','I','A','S','E','C'];
 const TNAME={R:'Realista',I:'Investigador',A:'Artístico',S:'Social',E:'Emprendedor',C:'Convencional'};
 const TCOL={R:'#B5532F',I:'#2D6A8E',A:'#8A4AA6',S:'#2E8656',E:'#C4910F',C:'#5B6B7C'};
 const BANK={
- R:['Construir muebles de cocina','Reparar electrodomésticos','Ensamblar piezas electrónicas','Instalar y reparar cerraduras','Manejar máquinas para fabricar productos'],
- I:['Desarrollar un nuevo medicamento','Estudiar formas de reducir la contaminación del agua','Hacer experimentos químicos','Examinar muestras de sangre con un microscopio','Desarrollar una forma de predecir mejor el clima'],
- A:['Escribir libros u obras de teatro','Tocar un instrumento musical','Hacer dibujos o ilustraciones','Crear efectos especiales para películas','Editar videos o películas'],
- S:['Enseñar a una persona una rutina de ejercicios','Ayudar a personas con problemas personales o emocionales','Orientar a otras personas sobre qué carrera elegir','Hacer trabajo voluntario en una organización social','Enseñar a niños a practicar un deporte'],
- E:['Administrar una tienda','Crear tu propio negocio','Negociar contratos de negocios','Representar a un cliente en un juicio','Lanzar al mercado una nueva línea de ropa'],
- C:['Crear una hoja de cálculo en el computador','Revisar registros o formularios para encontrar errores','Llevar el registro de envíos y entregas','Calcular los salarios de los empleados','Llevar el inventario de materiales']
+ R:["Armar, desarmar o reparar objetos para entender cómo funcionan", "Trabajar con herramientas, cables o máquinas", "Hacer actividades que exigen esfuerzo físico o estar al aire libre", "Construir algo concreto siguiendo un plano o un diagrama", "Instalar o mantener equipos, como un circuito, una red o una bicicleta"],
+ I:["Averiguar por qué ocurre algo antes de aceptar una explicación", "Resolver problemas que exigen pensar con lógica o con números", "Hacer experimentos para comprobar si una idea es cierta", "Buscar patrones en datos o en información para sacar conclusiones", "Leer o investigar sobre ciencia, salud, tecnología o naturaleza"],
+ A:["Crear algo propio: un dibujo, una canción, un video o un diseño", "Expresar ideas o sentimientos por medio del arte, la escritura o la actuación", "Diseñar la apariencia de algo, como un cartel, una página web o un espacio", "Inventar historias, personajes o formas nuevas de hacer las cosas", "Trabajar en tareas donde no hay una única forma correcta de hacerlas"],
+ S:["Explicarle a alguien algo que no entiende hasta que lo comprenda", "Escuchar y apoyar a una persona que pasa por un momento difícil", "Cuidar la salud o el bienestar de otras personas", "Trabajar en equipo para resolver un problema de la comunidad", "Acompañar a niños o jóvenes en su aprendizaje o en su entrenamiento"],
+ E:["Convencer a otros de apoyar una idea o un proyecto", "Dirigir un grupo y tomar decisiones cuando hay que actuar", "Iniciar un negocio o un emprendimiento propio", "Organizar un evento, como un torneo o una feria, y conseguir quién lo apoye", "Presentar cifras y argumentos ante un grupo para defender una propuesta"],
+ C:["Organizar información en tablas, listas o archivos", "Llevar cuentas, presupuestos o registros con precisión", "Seguir un procedimiento paso a paso para que todo quede bien hecho", "Revisar documentos o datos para encontrar y corregir errores", "Planear horarios y tareas para que todo se cumpla a tiempo"]
 };
 // ítem k (0..29): tipo = TYPES[k%6], texto = BANK[tipo][floor(k/6)]
 const ITEMS=[...Array(30)].map((_,k)=>({t:TYPES[k%6],txt:BANK[TYPES[k%6]][Math.floor(k/6)]}));
