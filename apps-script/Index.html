@@ -499,7 +499,7 @@ footer{max-width:1140px;margin:0 auto 2rem;padding:0 1.25rem;font-size:.76rem;co
       <button id="d-reset" class="ghost" style="border-color:var(--bad);color:var(--bad)">Borrar todos los datos</button>
     </div>
     <h3>Perfiles de ocupaciones</h3>
-    <p class="small muted">Puntajes en escala de 0 a 20. Para usar datos de O*NET OnLine, escribe los seis valores de la sección Interests (escala de 1 a 7) en la columna de conversión y pulsa Convertir: el aplicativo aplica 20 × (valor − 1) ÷ 6. Marca «Verificado» cuando los valores provengan de O*NET.</p>
+    <p class="small muted">Puntajes en escala de 0 a 20. Para usar datos de O*NET OnLine, abre la ocupación en onetonline.org, busca la sección Career Interest Types (escala de 0 a 100) y escribe los seis valores en orden R I A S E C en la columna de conversión; al pulsar Convertir el aplicativo divide entre 5. Si tienes valores de la escala antigua de 1 a 7, con decimales, aplica 20 × (valor − 1) ÷ 6. Marca «Verificado» cuando los valores provengan de O*NET.</p>
     <div class="tbl-wrap"><table id="d-occ"></table></div>
     <div class="row" style="margin-top:.6rem"><button id="d-occ-add" class="ghost">Añadir ocupación</button><button id="d-occ-save">Guardar ocupaciones</button><button id="d-occ-reset" class="ghost">Restaurar lista inicial</button></div>
   </div>
@@ -531,12 +531,21 @@ const PROFS=['Administración deportiva','Ingeniería y diseño multimedial','El
 const SKILLS=['Comunicación oral','Trabajo en equipo','Resolución de problemas','Manejo de herramientas','Creatividad','Organización','Liderazgo','Uso de tecnología'];
 // Perfiles provisionales construidos a partir de códigos de alto punto. Deben verificarse con O*NET OnLine.
 function prof(code){const v={R:5,I:5,A:5,S:5,E:5,C:5};const w=[17,13,10];code.split('').forEach((t,i)=>v[t]=w[i]);return TYPES.map(t=>v[t]);}
-const OCC0=[
- ['Ciencia de datos','IC'],['Desarrollo de software','ICR'],['Arquitectura','AIR'],['Medicina general','IS'],['Enfermería','SIC'],
- ['Fisioterapia','SIR'],['Psicología','ISA'],['Animación y diseño multimedia','AR'],['Artes plásticas','AR'],['Música','AE'],
- ['Periodismo','AEI'],['Docencia en secundaria','SA'],['Trabajo social','SE'],['Entrenamiento deportivo','SER'],['Administración de empresas','EC'],
- ['Contaduría','CE'],['Derecho','EI'],['Electricidad','RC'],['Tecnología en electrónica','RIC'],['Mecánica automotriz','RI']
-].map(([n,c])=>({name:n,code:c,v:prof(c),ver:false}));
+// Puntajes de O*NET OnLine (Career Interest Types, escala 0-100, consultados en noviembre de 2026) divididos entre 5.
+// Las ocupaciones sin puntajes publicados conservan un perfil provisional construido con su código oficial.
+const ONET=[
+ ['Ciencia de datos','15-2051.00',[20,100,27,11,12,73]],['Desarrollo de software','15-1252.00',[44,84,23,14,15,77]],
+ ['Arquitectura','17-1011.00',[65,48,52,26,44,57]],['Medicina general','29-1215.00',[46,85,8,87,22,49]],
+ ['Enfermería','29-1141.00',[41,62,6,76,23,63]],['Fisioterapia','29-1123.00',[56,65,20,82,25,35]],
+ ['Psicología','19-3033.00','SI'],['Animación y diseño multimedia','27-1014.00',[45,30,100,20,27,36]],
+ ['Artes plásticas','27-1013.00',[51,28,100,21,23,22]],['Música','27-2042.00','AE'],
+ ['Periodismo','27-3023.00',[8,53,68,30,49,44]],['Docencia en secundaria','25-2031.00',[29,37,46,100,32,44]],
+ ['Trabajo social','21-1021.00','S'],['Entrenamiento deportivo','27-2022.00',[54,19,24,72,69,41]],
+ ['Administración de empresas','11-1021.00',[20,23,5,40,100,72]],['Contaduría','13-2011.00','CEI'],
+ ['Derecho','23-1011.00','ECI'],['Electricidad','47-2111.00',[100,28,4,5,14,52]],
+ ['Tecnología en electrónica','17-3023.00',[88,70,13,13,5,67]],['Mecánica automotriz','49-3023.00',[100,43,0,8,10,55]]];
+function code3(v){return TYPES.map((t,i)=>[t,v[i]]).sort((a,b)=>b[1]-a[1]).slice(0,3).map(x=>x[0]).join('');}
+const OCC0=ONET.map(([n,soc,d])=>Array.isArray(d)?{name:n,soc,code:code3(d),v:d.map(x=>+(x/5).toFixed(1)),ver:true}:{name:n,soc,code:d,v:prof(d),ver:false});
 
 /* ---------- almacenamiento: Apps Script o navegador ---------- */
 const IS_GAS=(typeof google!=='undefined'&&google.script&&google.script.run);
@@ -1077,8 +1086,8 @@ function renderDocente(){if(IS_GAS&&!DOCPIN){$('#d-gate').classList.remove('hide
   $('#d-ind').innerHTML=`<p>Perfiles con respuestas: <b>${withR.length}</b> (${withR.filter(s=>s.sim).length} simulados). Estudiantes que ya compararon sus cuentas: <b>${chk.length}</b>. Puntajes correctos al primer intento: <b>${chk.length?pctf(ok.length/chk.length*100):'–'}</b> (meta: 70 %). Tableros guardados: <b>${real.filter(s=>s.board).length}</b>.</p>`+
    (Object.keys(errC).length?`<p class="small">Errores registrados: ${Object.entries(errC).map(([k,v])=>`${k} (${v})`).join(', ')}.</p>`:'')+
    (()=>{const r=evalStats(real);return r.n||r.na?`<p>${r.n?`Avance en formulación y ejecución: <b>${r.av>=0?'+':''}${fmt(r.av)} pp</b> (meta: +10 pp; n = ${r.n}). `:''}${r.na?`Actitudes hacia la estadística: de <b>${fmt(r.aI,2)}</b> a <b>${fmt(r.aF,2)}</b> (meta: aumento).`:''}</p>`:'<p class="small muted">Preprueba, posprueba y actitudes: aún sin registrar.</p>';})();
-  const O=occs();$('#d-occ').innerHTML=`<tr><th class="l">Ocupación</th><th>Código</th>${TYPES.map(t=>`<th>${t}</th>`).join('')}<th>Conversión desde O*NET (1–7)</th><th>Verificado</th><th></th></tr>`+
-   O.map((o,i)=>`<tr data-i="${i}"><td class="l"><input data-o="name" value="${o.name.replace(/"/g,'&quot;')}" style="width:12rem"></td><td><input data-o="code" value="${o.code}" style="width:4rem"></td>${o.v.map((v,j)=>`<td><input type="number" data-o="v${j}" value="${fmt(v,1).replace(',','.')}" step="0.1" style="width:3.8rem"></td>`).join('')}<td><input data-o="oi" placeholder="ej. 2.1 6.4 1.9 3 2.2 5.1" style="width:12rem"> <button class="ghost" data-conv="${i}">Convertir</button></td><td><input type="checkbox" data-o="ver" ${o.ver?'checked':''} aria-label="Verificado"></td><td><button class="ghost" data-odel="${i}">Quitar</button></td></tr>`).join('');}
+  const O=occs();$('#d-occ').innerHTML=`<tr><th class="l">Ocupación</th><th>Código</th>${TYPES.map(t=>`<th>${t}</th>`).join('')}<th>Conversión desde O*NET (0–100)</th><th>Verificado</th><th></th></tr>`+
+   O.map((o,i)=>`<tr data-i="${i}"><td class="l"><input data-o="name" value="${o.name.replace(/"/g,'&quot;')}" style="width:12rem"></td><td><input data-o="code" value="${o.code}" style="width:4rem"></td>${o.v.map((v,j)=>`<td><input type="number" data-o="v${j}" value="${fmt(v,1).replace(',','.')}" step="0.1" style="width:3.8rem"></td>`).join('')}<td><input data-o="oi" placeholder="ej. 20 100 27 11 12 73" style="width:12rem"> <button class="ghost" data-conv="${i}">Convertir</button></td><td><input type="checkbox" data-o="ver" ${o.ver?'checked':''} aria-label="Verificado"></td><td><button class="ghost" data-odel="${i}">Quitar</button></td></tr>`).join('');}
 /* ---------- analítica del aprendizaje (docente) ---------- */
 const SEMCOL={verde:'#2E7D4F',amarillo:'#D9A520',rojo:'#B5352F'};
 function semBars(L){const W=600,rowH=24,H=PORTS.length*rowH+30,x0=185,x1=W-40;
@@ -1166,8 +1175,8 @@ function readOcc(){return [...document.querySelectorAll('#d-occ tr[data-i]')].ma
   return {name:g('name').value.trim(),code:g('code').value.trim().toUpperCase(),v:TYPES.map((_,j)=>Math.max(0,Math.min(20,parseFloat(g('v'+j).value)||0))),ver:g('ver').checked};}).filter(o=>o.name);}
 $('#d-occ').addEventListener('click',e=>{const t=e.target;
   if(t.dataset.conv!==undefined){const tr=t.closest('tr');const raw=tr.querySelector('[data-o="oi"]').value.replace(/,/g,'.').trim().split(/\s+/).map(Number);
-    if(raw.length!==6||raw.some(x=>!(x>=1&&x<=7))){toast('Escribe seis valores entre 1 y 7 separados por espacios, en orden R I A S E C.');return;}
-    raw.forEach((x,j)=>tr.querySelector(`[data-o="v${j}"]`).value=(20*(x-1)/6).toFixed(1));
+    if(raw.length!==6||raw.some(x=>!(x>=0&&x<=100))){toast('Escribe seis valores de O*NET (0 a 100) separados por espacios, en orden R I A S E C.');return;}
+    const old=raw.every(x=>x>=1&&x<=7)&&raw.some(x=>!Number.isInteger(x));raw.forEach((x,j)=>tr.querySelector(`[data-o="v${j}"]`).value=(old?20*(x-1)/6:x/5).toFixed(1));
     const ord=TYPES.map((t,j)=>({t,x:raw[j]})).sort((a,b)=>b.x-a.x);tr.querySelector('[data-o="code"]').value=ord.slice(0,3).map(o=>o.t).join('');tr.querySelector('[data-o="ver"]').checked=true;toast('Convertido. Guarda las ocupaciones para aplicar el cambio.');}
   if(t.dataset.odel!==undefined){t.closest('tr').remove();}});
 $('#d-occ-add').onclick=()=>{DB.occ=readOcc();DB.occ.push({name:'Nueva ocupación',code:'',v:[5,5,5,5,5,5],ver:false});renderDocente();};
